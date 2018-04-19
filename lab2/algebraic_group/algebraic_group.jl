@@ -4,7 +4,18 @@ import Base.convert
 import Base.promote_type
 import Base.^
 
-N = 12
+# Example
+N = 11
+
+struct Gn{T} 
+    x::T
+    Gn(x::T) = typeof(x) != T || check_condition(x::Int) == 0 ? error("Can not convert!") : new(x%N)
+    *(x::Gn{Int64}, y::Gn{Int64}) = Gn{Int64}((x.x*y.x)%N)
+    convert(::Type{Gn{Int64}}, z::Int64) = Gn{Int64}(z)
+    convert(::Int64, z::Gn{Int64}) = z.x
+    promote_type(x::Gn{Int64}) = promote_type(x.x)
+end
+
 
 function check_condition(x)
     x=x%N
@@ -15,45 +26,41 @@ function check_condition(x)
     end
 end
 
-# korzystając z poprzedniej funkcji napisać funkcję obliczającą okres danej
-#  liczby typu G{N} czyli najmniejszą liczbę naturalną r, taką, że a^r mod N =1.
-#  Wskazówka: można to zrobić sprawdzająć po kolei wszystkie możliwości, można też 
-#  skorzystać z twierdzenia, że r musi dzielić ilość elementów w grupie.
-function period(gn::Gn)
-    it = 1
-    while(it != N+1)
-        if(gn^it == 1)
+
+function period(gn::Gn{Int64})
+    it = 2
+    while(it != N)
+        if((gn^it).x == 1)
             return it
         end
         it = it + 1
     end
 end
 
-function reversed(gn:gn)
+function reversed(gn::Gn{Int64})
+
     it = 1
-    while(it != gn.x + 1)
-        if((gn.x*it)%N == 1)
-            return Gn(it)
+    while(it != y )
+        if((gn*it) == 1)
+            return it
         end
         it = it + 1
     end 
 end
 
-function ^(gn::Gn{Int64}, x::Int64)
+function ^(gn::Gn{Int64},b::Int64)
 
-    a = promote_type(gn)
-
-    sum = 0
-    while(x != 0)
-        sum = sum + a*a
-        sum = sum%N
-        x = x - 1
+    sum = gn
+    while(b > 1)
+        sum = sum*gn
+        b = b - 1
     end
 
-    return Gn(sum)
+    return sum
 end
 
-function group_size(gn::Type{Gn{}})
+# group_size(Gn{Int})
+function group_size(gn::Type{Gn{T}}) where T <:Int
     
     it = 0
     while gn(it).x == it
@@ -62,14 +69,4 @@ function group_size(gn::Type{Gn{}})
 
     return it
 end
-
-struct Gn{T} 
-        x::T
-        Gn(x::T) = check_condition(x) == 0 ? error("Can not convert!") : new(x%N)
-        *(x::Gn{Int64}, y::Gn{Int64}) = Gn{Int64}((x.x*y.x)%N)
-        convert(::Type{Gn{Int64}}, z::Int64) = Gn{Int64}(z)
-        convert(::Int64, z::Gn{Int64}) = z.x
-        promote_type(x::Gn{Int64}) = promote_type(x.x)
-end
-
 
