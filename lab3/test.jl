@@ -17,12 +17,16 @@ end
 # Profile.init(n = 10^7, delay = 0.01)
 allocate_strings(1)
 
+function allocate_all_ot(N::Int64)
+    while(i!=N)
+        @ profile allocate_strings(100000)
+        i = i + 1
+    end
+end
+
 Profile.clear()  # usuń dane z poprzedniego profilowania
 i = 1
-while(i!=500)
-    @ profile allocate_strings(2000000)
-    i = i + 1
-end
+
 j = 1
 while(j!=500)
     @ profile allocate_strings(2000000)

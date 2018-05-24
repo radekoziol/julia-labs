@@ -34,20 +34,18 @@ end
 
 
 # Number of graph nodes.
-N = 800
+# N = 800
 
 # Number of graph edges.
-K = 10000
+# K = 10000
 
 
 #= Generates random directed graph of size N with K edges
 and returns its adjacency matrix.=#
-function generate_random_graph()
-    A = Array{Int64,2}(N, N)
+function generate_random_graph(N::Int64,K::Int64)
+    A = Array{Int8}(N, N)
 
-    for i=1:N, j=1:N
-      A[i,j] = 0
-    end
+    A = fill(0,N,N)
 
     for i in sample(1:N*N, K, replace=false)
       row, col = ind2sub(size(A), i)
@@ -69,8 +67,10 @@ function get_random_address()
   Address(rand(1:100))
 end
 
+# N =800
+
 # Generates N random nodes (of random NodeType).
-function generate_random_nodes()
+function generate_random_nodes(N::Int64)
   nodes = Vector()
   for i= 1:N
     push!(nodes, rand() > 0.5 ? get_random_person() : get_random_address())
@@ -80,15 +80,18 @@ end
 
 #= Converts given adjacency matrix (NxN)
   into list of graph vertices (of type GraphVertex and length N). =#
-function convert_to_graph(A, nodes)
+function convert_to_graph(A::Array{Int64,2}, nodes::Vector)
+  graph = GraphVertex[]
   N = length(nodes)
   push!(graph, map(n -> GraphVertex(n, GraphVertex[]), nodes)...)
 
-  for i = 1:N, j = 1:N
+  for i = 1:size(A,1), j = 1:size(N,2)
       if A[i,j] == 1
         push!(graph[i].neighbors, graph[j])
       end
   end
+
+  return graph
 end
 
 #= Groups graph nodes into connected parts. E.g. if entire graph is connected,
@@ -177,12 +180,11 @@ function test_graph()
   end
 end
 
-graph = GraphVertex[]
 
-A = generate_random_graph()
-nodes = generate_random_nodes()
-convert_to_graph(A, nodes)
-str = graph_to_str()
-println(str)
+
+A = generate_random_graph(800,10000)
+nodes = generate_random_nodes(800)
+graph = convert_to_graph(A, nodes)
+@time println(check_euler())
 
 end
