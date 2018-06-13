@@ -14,4 +14,9 @@ tspan = (0.0,100.0)
 prob = ODEProblem(lorenz,u0,tspan)
 sol = solve(prob)
 
-plot(sol,vars=(1,2,3))
+fieldnames(sol)
+
+df1=DataFrame(t=sol.t, u=sol.u)
+
+plot(df1,  x="t", y="u")
+
